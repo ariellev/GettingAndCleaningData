@@ -1,20 +1,21 @@
-run_analysis <- function() {
-	if (!file.exists(".data")) {
-		dir.create(".data")
-		message("creating data directory")
-	}
-	if (!file.exists(".data/dataset.zip")) {
-		message("downloading zip file")
-        	status <- download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile=".data/dataset.zip", method = "curl")		
-		if (status != 0) {
-			## error downloading file
-			stop(paste("error downloading zip file, status=", status))
+run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
+	## pre condition - verifying that data set folder exists
+	## if not, it will be downloaded and extracted
+	if (!file.exists(dataSetFolder)) {
+		 message("Couldn't find data set folder. trying out the zip file..")
+		 if (!file.exists("dataset.zip")) {
+                	message("couldn't find zip. Downloading..")
+                	status <- download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile="dataset.zip", method = "curl")
+                	if (status != 0) {
+                        	## error downloading file
+                        	stop(paste("error downloading zip file, status=", status))
+               		 }		 
 		}
+		message("extracting dataset from zip file")
+		unzip("dataset.zip")
 	}
-	
-	message("extracting dataset from zip file")
-	unzip(".data/dataset.zip", exdir=".data")
 
+	## pre condition - packages are installed.
 	## installing package "data.table"
 	list.of.packages <- c("data.table", "dplyr")
 	new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -25,33 +26,45 @@ run_analysis <- function() {
 	require(data.table)
 	require(dplyr)
 
-	cols1 <- c("subject", "y", "X")
-        cols2 <- c("body_acc_x" ,"body_acc_y" ,"body_acc_z" ,"body_gyro_x" ,"body_gyro_y" ,"body_gyro_z" ,"total_acc_x" ,"total_acc_y" ,"total_acc_z")	
-	l <- list()
-	for (c in cols1) {
-		path <- paste(".data/UCI HAR Dataset/train/", c, "_train.txt", sep="")	
-		message(path)
-		l[[c]] <- fread(path, sep="\n")		
-		if (length(l[[c]]) != 7352) {
-			l[[c]] <- append(l[[c]], 123)
-		}
-	}
-	df <- data.frame(l)
-	## 7351 obs
-	## subject_*.txt - subjects performing an activity 
-	## y_*.txt - activity labels
-	## x_*.txt - values set
-	## replace activity numbers with labels
-	## datset:
-	## subject, activity, set
+	## reading subject data
+        message("processing subject data")
+	path <- file.path(dataSetFolder, "train", "subject_train.txt")
+	subject <- fread(path, sep="\n", header=FALSE)
+
+	## reading activity data 
+        message("processing activity data")
+	path <- file.path(dataSetFolder, "train", "y_train.txt")
+	activity_nums <- fread(path, sep="\n", header=FALSE)
+
+	## replacing activity numbers with lables
+        path <- file.path(dataSetFolder, "activity_labels.txt")
+	activity_labels <- read.table(path)
+
+	activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
 	
-	## fread can be much faster
-	##        	   User      System verstrichen 
-      	## fread 	   0.355       0.018       0.378
-	## read.table      8.486       0.059       8.468
-  
-	## fread(".data/UCI HAR Dataset/train/X_train.txt", sep="\n")
-	## labels <- read.table(".data/UCI HAR Dataset/train/test/y_test.txt", sep="\t")
-	message("Done.") 
-	df
+	## reading X data
+	message("processing X_train.txt")	
+	path <- file.path(dataSetFolder, "train", "X_train.txt")
+	x <- read.table(path)	
+	
+	## reading feature data	
+        message("processing feature data")
+        path <- file.path(dataSetFolder, "features.txt")
+	features <- fread(path)
+
+	## removing parenthesises
+	features$V2 <- gsub('\\(', "", features$V2)
+        features$V2 <- gsub('\\)', "", features$V2)
+
+	## mapping to x values to feature names	
+	names(x) <- features$V2
+
+	## selecting only mean and std variables 
+	x <- x[,grepl("mean|std", colnames(x))] 
+
+	d <- cbind(subject, activity, x)
+	dt <- data.table(d)
+	dt <- rename(dt, subject = V1)
+	message("Done.")
+	dt
 }
