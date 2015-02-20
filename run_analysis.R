@@ -34,7 +34,7 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
         ## ------------------------
 	
         ## features
-        message("processing features")
+        message("reading features")
         path <- file.path(dataSetFolder, "features.txt")
         features <- fread(path)
 
@@ -44,33 +44,37 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
         features$V2 <- gsub('-', "_", features$V2)
 
 	## actvity labels
-        message("processing activity labels")
+        message("reading activity labels")
         path <- file.path(dataSetFolder, "activity_labels.txt")
         activity_labels <- read.table(path)
 
-	## reading subject data
-        message("processing subject data")
-	path <- file.path(dataSetFolder, "train", "subject_train.txt")
-	subject <- fread(path, sep="\n", header=FALSE)
-
-	## reading activity data 
-        message("processing activity data")
-	path <- file.path(dataSetFolder, "train", "y_train.txt")
-	activity_nums <- fread(path, sep="\n", header=FALSE)
-
-	## replacing activity numbers with lables
-	activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
+	categories <- c("train")
 	
-	## reading X data
-	message("processing X_train.txt")	
-	path <- file.path(dataSetFolder, "train", "X_train.txt")
-	x <- read.table(path)	
-	
-	## mapping to x values to feature names	
-	names(x) <- features$V2
+	for ( c in categories) {
+		## reading subject data
+        	message("processing subject data")
+		path <- file.path(dataSetFolder, c, paste("subject_", c, ".txt", sep=""))
+		subject <- fread(path, sep="\n", header=FALSE)
 
-	## selecting only mean and std variables 
-	x <- x[,grepl("mean|std", colnames(x))] 
+		## reading activity data 
+        	message("processing activity data")
+		path <- file.path(dataSetFolder, c, paste("y_", c, ".txt", sep=""))
+		activity_nums <- fread(path, sep="\n", header=FALSE)
+
+		## replacing activity numbers with lables
+		activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
+	
+		## reading X data
+		message("processing feature data")	
+		path <- file.path(dataSetFolder, c, paste("X_", c, ".txt", sep=""))
+		x <- read.table(path)	
+	
+		## mapping to x values to feature names	
+		names(x) <- features$V2
+
+		## selecting only mean and std variables 
+		x <- x[,grepl("mean|std", colnames(x))] 
+	}
 
 	d <- cbind(subject, activity, x)
 	dt <- data.table(d)
