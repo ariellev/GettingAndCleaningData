@@ -1,4 +1,7 @@
 run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
+        ## ------------------------
+        ##      setting up
+        ## ------------------------
 	## pre condition - verifying that data set folder exists
 	## if not, it will be downloaded and extracted
 	if (!file.exists(dataSetFolder)) {
@@ -26,6 +29,25 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	require(data.table)
 	require(dplyr)
 
+        ## ------------------------
+        ##      processing
+        ## ------------------------
+	
+        ## features
+        message("processing features")
+        path <- file.path(dataSetFolder, "features.txt")
+        features <- fread(path)
+
+        ## removing problematic chars
+        features$V2 <- gsub('\\(', "", features$V2)
+        features$V2 <- gsub('\\)', "", features$V2)
+        features$V2 <- gsub('-', "_", features$V2)
+
+	## actvity labels
+        message("processing activity labels")
+        path <- file.path(dataSetFolder, "activity_labels.txt")
+        activity_labels <- read.table(path)
+
 	## reading subject data
         message("processing subject data")
 	path <- file.path(dataSetFolder, "train", "subject_train.txt")
@@ -37,8 +59,6 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	activity_nums <- fread(path, sep="\n", header=FALSE)
 
 	## replacing activity numbers with lables
-        path <- file.path(dataSetFolder, "activity_labels.txt")
-	activity_labels <- read.table(path)
 	activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
 	
 	## reading X data
@@ -46,16 +66,6 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	path <- file.path(dataSetFolder, "train", "X_train.txt")
 	x <- read.table(path)	
 	
-	## reading feature data	
-        message("processing feature data")
-        path <- file.path(dataSetFolder, "features.txt")
-	features <- fread(path)
-
-	## removing problematic chars
-	features$V2 <- gsub('\\(', "", features$V2)
-        features$V2 <- gsub('\\)', "", features$V2)
-        features$V2 <- gsub('-', "_", features$V2)
-
 	## mapping to x values to feature names	
 	names(x) <- features$V2
 
