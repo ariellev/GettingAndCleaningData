@@ -48,9 +48,13 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
         path <- file.path(dataSetFolder, "activity_labels.txt")
         activity_labels <- read.table(path)
 
-	categories <- c("train")
+	research_groups <- c("train", "test")
+        mat_list <- list()
 	
-	for ( c in categories) {
+	for ( c in research_groups) {
+                message      ("---------------------------")
+		message(paste("processing group=", c))
+                message	     ("---------------------------")
 		## reading subject data
         	message("processing subject data")
 		path <- file.path(dataSetFolder, c, paste("subject_", c, ".txt", sep=""))
@@ -74,11 +78,12 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 
 		## selecting only mean and std variables 
 		x <- x[,grepl("mean|std", colnames(x))] 
+		
+		mat_list[[c]] <- cbind(subject, activity, x)
 	}
-
-	d <- cbind(subject, activity, x)
+	d <- rbind(mat_list[["train"]], mat_list[["test"]])
 	dt <- data.table(d)
 	dt <- rename(dt, subject = V1)
 	message("Done.")
-	dt %>% group_by(subject, activity) %>% summarise_each(funs(mean))
+	dt %>% arrange(subject, activity) %>% group_by(subject, activity) %>% summarise_each(funs(mean))
 }
