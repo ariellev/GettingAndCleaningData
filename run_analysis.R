@@ -39,7 +39,6 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	## replacing activity numbers with lables
         path <- file.path(dataSetFolder, "activity_labels.txt")
 	activity_labels <- read.table(path)
-
 	activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
 	
 	## reading X data
@@ -52,9 +51,10 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
         path <- file.path(dataSetFolder, "features.txt")
 	features <- fread(path)
 
-	## removing parenthesises
+	## removing problematic chars
 	features$V2 <- gsub('\\(', "", features$V2)
         features$V2 <- gsub('\\)', "", features$V2)
+        features$V2 <- gsub('-', "_", features$V2)
 
 	## mapping to x values to feature names	
 	names(x) <- features$V2
@@ -66,5 +66,5 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	dt <- data.table(d)
 	dt <- rename(dt, subject = V1)
 	message("Done.")
-	dt
+	dt %>% group_by(subject, activity) %>% summarise_each(funs(mean))
 }
