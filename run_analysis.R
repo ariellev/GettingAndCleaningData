@@ -26,7 +26,7 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
 
 	## pre condition - packages are installed.
 	## installing package "data.table"
-	list.of.packages <- c("data.table", "dplyr")
+	list.of.packages <- c("data.table", "dplyr", "reshape2")
 	new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 	if (length(new.packages)) {
 		message("installing packages")
@@ -34,6 +34,7 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
 	}
 	require(data.table)
 	require(dplyr)
+	require(reshape2)
         message("------------------------")
         message("    processing data     ")
         message("------------------------")
@@ -51,7 +52,7 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
         features$V2 <- gsub('\\(', "", features$V2)
         features$V2 <- gsub('\\)', "", features$V2)
         features$V2 <- gsub('-', "_", features$V2)
-
+	features$V2 <- gsub('BodyBody', "Body", features$V2)
 	## actvity labels
         message("reading activity labels")
         path <- file.path(dataSetFolder, "activity_labels.txt")
@@ -80,7 +81,6 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
 		## reading X data
 		message("processing feature data")			
 		path <- file.path(dataSetFolder, c, paste("X_", c, ".txt", sep=""))
-		message(path)
 		x <- read.table(path)	
 	
 		## mapping to x values to feature names	
@@ -94,8 +94,28 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
 	d <- rbind(mat_list[["train"]], mat_list[["test"]])
 	dt <- data.table(d)
 	dt <- rename(dt, subject = V1)
+        
+	## ------------------------
+        ##     writing data
+        ## ------------------------
+	message("------------------------")
+        message(" writing data to files	 ")
         message("------------------------")
+	files <- c("smartphone_dataset_wide.csv", "smartphone_dataset_long.csv")
+        
+	## wide data
+	message(files[1])
+	dt <- dt %>% group_by(subject, activity) %>% summarise_each(funs(mean))
+	write.table(dt, files[1], row.names=FALSE, sep = ",")
+        
+	## long data
+	message(files[2])
+	m <- melt(dt,id=c("subject", "activity"), measre.vars=3:81)
+        dt <- m %>% arrange(subject, activity) %>% rename(feature=variable)
+	write.table(dt, files[2], row.names=FALSE, sep = ",")
+
+	message("------------------------")
 	message("Done.")
         message("------------------------")
-	dt %>% arrange(subject, activity) %>% group_by(subject, activity) %>% summarise_each(funs(mean))
+	files
 }
