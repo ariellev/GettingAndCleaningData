@@ -64,7 +64,7 @@ Printing out the data table
 14220:      30 WALKING_UPSTAIRS fBodyGyroJerkMag_meanFreq -0.07143987
 ```
 
-In addition the scripts writes two fiels to you working directory. Notice that the wide data set is given additionaly. 
+In addition the scripts writes two files to you working directory. Notice that the wide data set is given additionaly. 
 ```R
 smartphone_dataset_long.txt
 smartphone_dataset_wide.txt
@@ -77,6 +77,7 @@ dt_long <- read.table("smartphone_dataset_long.csv", header=TRUE)
 
 ####2. script steps 
 ##### setup and validation
+This script makes no assumptions over the samsung data. 
 1. if _dataSetFolder_ does not exist, then it will be extracted from _zipFile_. 
 2. If the _zipFile_ does not exist, it will download from _https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip_
 3. Loading of libraries: data.table, dplyr, reshape2. If a package is not found, then it will be downloaded from a CRAN repostiory.
@@ -105,3 +106,9 @@ m <- melt(dt,id=c("subject", "activity"), measre.vars=3:81)
 dt <- m %>% arrange(subject, activity) %>% rename(feature=variable)
 ```
 * writing long data set to file
+
+### Please Notice
+There might be a small chance, that if you're running the script on a Mac OS, you'd run into a segmentation fault.
+I found the following thread saying it has to deal with a bug in R
+http://comments.gmane.org/gmane.comp.lang.r.manipulatr/683
+
