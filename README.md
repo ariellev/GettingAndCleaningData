@@ -108,7 +108,7 @@ dt <- m %>% arrange(subject, activity) %>% rename(feature=variable)
 * writing long data set to file
 
 ### Please Notice
-There might be a small chance, that if you're running the script on a Mac OS, you'd run into a segmentation fault.
+There might be a small chance, that for a some usages of dplyr on a Mac OS, code migh run into a segmentation fault.
 I found the following thread saying it has to deal with a bug in R
 http://comments.gmane.org/gmane.comp.lang.r.manipulatr/683
 
