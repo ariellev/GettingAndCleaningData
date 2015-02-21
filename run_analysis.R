@@ -101,21 +101,21 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.
 	message("------------------------")
         message(" writing data to files	 ")
         message("------------------------")
-	files <- c("smartphone_dataset_wide.csv", "smartphone_dataset_long.csv")
+	files <- c("smartphone_dataset_wide.txt", "smartphone_dataset_long.txt")
         
 	## wide data
 	message(files[1])
 	dt <- dt %>% group_by(subject, activity) %>% summarise_each(funs(mean))
-	write.table(dt, files[1], row.names=FALSE, sep = ",")
+	write.table(dt, files[1], row.names=FALSE)
         
 	## long data
 	message(files[2])
 	m <- melt(dt,id=c("subject", "activity"), measre.vars=3:81)
         dt <- m %>% arrange(subject, activity) %>% rename(feature=variable)
-	write.table(dt, files[2], row.names=FALSE, sep = ",")
+	write.table(dt, files[2], row.names=FALSE)
 
 	message("------------------------")
 	message("Done.")
         message("------------------------")
-	files
+	dt
 }
