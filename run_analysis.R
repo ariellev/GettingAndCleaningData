@@ -1,21 +1,27 @@
-run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
+run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.zip") {
+        message("------------------------")	
+        message("      run_analysis      ")
+        message("------------------------")
+        message("         setup          ")
+        message("------------------------")
         ## ------------------------
         ##      setting up
         ## ------------------------
 	## pre condition - verifying that data set folder exists
 	## if not, it will be downloaded and extracted
 	if (!file.exists(dataSetFolder)) {
-		 message("Couldn't find data set folder. trying out the zip file..")
-		 if (!file.exists("dataset.zip")) {
-                	message("couldn't find zip. Downloading..")
-                	status <- download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile="dataset.zip", method = "curl")
+		 message("Couldn't find data set folder. Trying out the zip file..")
+		 if (!file.exists(zipFile)) {
+                	message("Couldn't find zip. Downloading...")
+			status <- download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip", destfile=zipFile, method = "curl")
                 	if (status != 0) {
                         	## error downloading file
                         	stop(paste("error downloading zip file, status=", status))
                		 }		 
 		}
 		message("extracting dataset from zip file")
-		unzip("dataset.zip")
+		unzip(zipFile)
+		dataSetFolder <- "UCI HAR Dataset"
 	}
 
 	## pre condition - packages are installed.
@@ -28,6 +34,9 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	}
 	require(data.table)
 	require(dplyr)
+        message("------------------------")
+        message("    processing data     ")
+        message("------------------------")
 
         ## ------------------------
         ##      processing
@@ -52,9 +61,9 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
         mat_list <- list()
 	
 	for ( c in research_groups) {
-                message      ("---------------------------")
-		message(paste("processing group=", c))
-                message	     ("---------------------------")
+                message      ("------------------------")
+		message(paste("group=", c, sep=""))
+                message	     ("------------------------")
 		## reading subject data
         	message("processing subject data")
 		path <- file.path(dataSetFolder, c, paste("subject_", c, ".txt", sep=""))
@@ -69,8 +78,9 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 		activity <- sapply(activity_nums$V1, function(x) activity_labels$V2[[x]])
 	
 		## reading X data
-		message("processing feature data")	
+		message("processing feature data")			
 		path <- file.path(dataSetFolder, c, paste("X_", c, ".txt", sep=""))
+		message(path)
 		x <- read.table(path)	
 	
 		## mapping to x values to feature names	
@@ -84,6 +94,8 @@ run_analysis <- function( dataSetFolder = "UCI HAR Dataset") {
 	d <- rbind(mat_list[["train"]], mat_list[["test"]])
 	dt <- data.table(d)
 	dt <- rename(dt, subject = V1)
+        message("------------------------")
 	message("Done.")
+        message("------------------------")
 	dt %>% arrange(subject, activity) %>% group_by(subject, activity) %>% summarise_each(funs(mean))
 }
