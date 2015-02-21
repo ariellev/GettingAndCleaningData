@@ -12,7 +12,7 @@ Ariel Lev
 ##DATA COLLECTION DESCRIPTION
 <br/>
 
-  _if you are familiar with the experiment you may jump to_ [CLEANING THE DATA](https://github.com/ariellev/GettingAndCleaningData/blob/master/CodeBook.md#code-book)
+  _if you are familiar with the experiment you may jump to_ [CLEANING THE DATA](https://github.com/ariellev/GettingAndCleaningData/blob/master/CodeBook.md#cleaning-the-data)
 <br/>
 
 ###EXPERIMENT
