@@ -11,6 +11,10 @@ Ariel Lev
 <br/>
 ##DATA COLLECTION DESCRIPTION
 <br/>
+
+  _if you are familiar with the experiment you may jump to_ [CLEANING THE DATA](https://github.com/ariellev/GettingAndCleaningData/blob/master/CodeBook.md#code-book)
+<br/>
+
 ###EXPERIMENT
 
 The experiments have been carried out with a group of 30 volunteers within an age bracket of 19-48 years. 
