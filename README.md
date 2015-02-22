@@ -74,7 +74,7 @@ smartphone_dataset_wide.txt
 <br/>
 To read the data set from the working direcory, do something like:
 ```R
-dt_long <- read.table("smartphone_dataset_long.csv", header=TRUE)
+dt_long <- read.table("smartphone_dataset_long.txt", header=TRUE)
 ```
 
 ####2. script steps 
