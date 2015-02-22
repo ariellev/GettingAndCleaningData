@@ -1,14 +1,14 @@
 ##README
 <br/>
 #### Running the script 
-function prototype
+The function gets 2 optional parameters specifying the location of the data set folder or zip file.
 ```R
 run_analysis <- function( dataSetFolder = "UCI HAR Dataset", zipFile = "dataset.zip") {
 ..
 }
 ```
 <br/>
-source run_analysis.R and call the function _**run_analysis()**_ 
+Source run_analysis.R and call the function _**run_analysis()**_ 
 ```R
 source("run_analysis.R")
 dt <- run_analysis()
@@ -50,6 +50,8 @@ Done.
 <br/>
 Printing out the data table
 ```R
+dt
+
        subject         activity                   feature       value
     1:       1           LAYING           tBodyAcc_mean_X  0.22159824
     2:       1           LAYING           tBodyAcc_mean_Y -0.04051395
@@ -64,7 +66,7 @@ Printing out the data table
 14220:      30 WALKING_UPSTAIRS fBodyGyroJerkMag_meanFreq -0.07143987
 ```
 
-In addition the scripts writes two files to you working directory. Notice that the wide data set is given additionaly. 
+In addition the script writes two files to you working directory. Notice that the wide data set is given additionaly. 
 ```R
 smartphone_dataset_long.txt
 smartphone_dataset_wide.txt
@@ -77,35 +79,36 @@ dt_long <- read.table("smartphone_dataset_long.csv", header=TRUE)
 
 ####2. script steps 
 ##### setup and validation
-This script makes no assumptions over the samsung data. 
-1. if _dataSetFolder_ does not exist, then it will be extracted from _zipFile_. 
-2. If the _zipFile_ does not exist, it will download from _https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip_
-3. Loading of libraries: data.table, dplyr, reshape2. If a package is not found, then it will be downloaded from a CRAN repostiory.
+This script makes no assumptions over the samsung data. <br/>
+1. If _dataSetFolder_ does not exist, then it will be extracted from _zipFile_. <br/>
+2. If the _zipFile_ does not exist, it will download from _https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip_ <br/>
+3. The script loads required libraries autonomously: data.table, dplyr, reshape2. If a package is not found, then it will be downloaded from a CRAN repostiory.
  
 ##### processing
-1. features are read from "feature.txt". Problematic characters incompatible with R are replaced or removed.
-2. activity labels are read from "activity_labels.txt"
+1. Feature names are read from "feature.txt". Problematic characters incompatible with R  such as parenthesis are replaced or removed.
+2. Activity labels are read from "activity_labels.txt"
 3. Looping over "train" and "test" folders, and:
-  1. reading subject data
-  2. reading activities. replacing numeric values with labels
-  3. reading X data, applying col names from step 1, and subsetting over all mean and std cols using grepl
-  4. binding the columns of step i - iv
-4. binding rows of "train" and "test"
+  1. Reading subject data
+  2. Reading activities. replacing numeric values with labels
+  3. Reading X data, applying col names to the features (from step 1), and subsetting over all mean and std cols using grepl
+  4. Binding the columns of step i - iv
+  5. Saving the intermediate set into a list of matrices.
+4. Binding matrices rows together into a single data set: "train" and "test" are now combined
 
 ##### post processing and writing artifacts
-Processing the intermediate data resulted by the previous step and bringing it to the wished form.
+Once the data is combined we can bring it to the wished form.
 <br/>
 * Grouping by subject and activity and summarizing using a mean function
 ```
 dt <- dt %>% group_by(subject, activity) %>% summarise_each(funs(mean))
 ```
-* writing wide data set to file
+* Writing wide data set to file
 * Reshaping wide data set by calling melt function. Renaming variable columns to feature
 ```
 m <- melt(dt,id=c("subject", "activity"), measre.vars=3:81)
 dt <- m %>% arrange(subject, activity) %>% rename(feature=variable)
 ```
-* writing long data set to file
+* Writing long data set to file
 
 ### Please Notice
 There might be a small chance, that for a some usages of dplyr on a Mac OS, code migh run into a segmentation fault.
