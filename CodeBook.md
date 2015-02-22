@@ -12,7 +12,7 @@ Ariel Lev
 ##DATA COLLECTION DESCRIPTION
 <br/>
 
-  _if you are familiar with the experiment you may jump to_ [CLEANING THE DATA](https://github.com/ariellev/GettingAndCleaningData/blob/master/CodeBook.md#cleaning-the-data)
+  _if you are familiar with the experiment you may skip this phase and start at_ [CLEANING THE DATA](https://github.com/ariellev/GettingAndCleaningData/blob/master/CodeBook.md#cleaning-the-data)
 <br/>
 
 ###EXPERIMENT
@@ -63,9 +63,8 @@ The raw data as received was distributed among several files (features, activiti
 5.	Summarizing the raw feature values by subject and activity using an average function as required.
 6.	Melting the 79 size feature vector into a dedicated column to bring the dataset into a long form.
 
-Finally, I decided to arrange the observations by subject and activity to reflect a consequential relation of a “Subject who performs an activity which produces data”.
-
-The artifact of this phase is primary the file “smartphone_dataset_long.txt” contains a 14220 x 4 data set. In addition, the wide variant (180 x 81) of exactly this data set can be found in “smartphone_dataset_wide.txt” 
+Finally, the question of how the data is being served has apparentely more then one answer. I decided to arrange the observations by subject and activity to reflect a causation relation of a “Subject who performs an activity which produces data”. <br/>
+The artifact of this phase is primary the file “smartphone_dataset_long.txt” containing a 14220 x 4 data set. In order to produce the long format, the wide is being calculated intermediately during script execution. Subsequently I thought it would make sense, especially when no extra costs are involved, to provide also the wide format (180 x 81). 
 
 <br/>
 <br/>
