@@ -3,7 +3,6 @@ Getting and cleaning data
 Johns Hopkins University   
 Cousera
 
-Ariel Lev
 <br/>
 <br/>
 <br/>
